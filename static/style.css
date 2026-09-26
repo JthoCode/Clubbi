@@ -127,8 +127,12 @@
   white-space: nowrap !important;
   border: 0 !important;
 }
+html {
+  overflow-x: hidden;
+}
 body {
   margin: 0;
+  overflow-x: hidden;
   color: var(--ink);
   font-family: system-ui, sans-serif;
   animation: page-enter 0.45s ease both;
@@ -874,6 +878,117 @@ select {
 .page-nav form {
   margin: 0;
 }
+.menu-button,
+.menu-close {
+  border: 0;
+  cursor: pointer;
+  font: inherit;
+}
+.menu-button {
+  display: grid;
+  place-items: center;
+  width: 2.55rem;
+  height: 2.55rem;
+  padding: 0;
+  border: 1px solid rgba(71, 123, 255, 0.2);
+  border-radius: 8px;
+  background: #fff;
+  color: #315dcc;
+  box-shadow: 0 4px 10px rgba(39, 65, 130, 0.12);
+}
+.menu-button:hover,
+.menu-button:focus-visible {
+  background: #eaf0ff;
+  border-color: var(--blue);
+  transform: translateY(-1px);
+}
+.menu-icon {
+  display: grid;
+  gap: 4px;
+  width: 1.1rem;
+}
+.menu-icon i {
+  display: block;
+  height: 2px;
+  border-radius: 2px;
+  background: currentColor;
+  transition:
+    transform 0.2s ease,
+    opacity 0.2s ease;
+}
+.menu-button[aria-expanded="true"] .menu-icon i:nth-child(1) {
+  transform: translateY(6px) rotate(45deg);
+}
+.menu-button[aria-expanded="true"] .menu-icon i:nth-child(2) {
+  opacity: 0;
+}
+.menu-button[aria-expanded="true"] .menu-icon i:nth-child(3) {
+  transform: translateY(-6px) rotate(-45deg);
+}
+.menu-backdrop {
+  position: fixed;
+  z-index: 20;
+  inset: 0;
+  background: rgba(23, 35, 66, 0.35);
+}
+.site-menu {
+  position: fixed;
+  z-index: 21;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: min(88vw, 390px);
+  padding: 1.5rem;
+  overflow-y: auto;
+  transform: translateX(100%);
+  background: #fff;
+  border-left: 1px solid var(--line);
+  box-shadow: -18px 0 42px rgba(23, 35, 66, 0.2);
+  transition: transform 0.25s ease;
+}
+.site-menu.is-open {
+  transform: translateX(0);
+}
+.site-menu-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--line);
+  color: var(--ink);
+  font-size: 1.05rem;
+}
+.menu-close {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background: #eaf0ff;
+  color: var(--ink);
+  font-size: 1.4rem;
+  line-height: 1;
+}
+.menu-close:hover,
+.menu-close:focus-visible {
+  background: #dce6ff;
+  transform: rotate(90deg);
+}
+.site-menu-links {
+  display: grid;
+  gap: 0.25rem;
+  padding-top: 1rem;
+}
+.site-menu-links a {
+  padding: 0.85rem 0.7rem;
+  border-radius: 6px;
+  color: var(--ink);
+  font-weight: 700;
+  text-decoration: none;
+}
+.site-menu-links a:hover,
+.site-menu-links a:focus-visible {
+  background: #eaf0ff;
+  color: var(--blue);
+}
 .nav-greeting {
   color: #fff;
   font-size: 0.85rem;
@@ -1564,10 +1679,10 @@ select {
 }
 @media (max-width: 767px) {
   .site-nav {
-    overflow-x: auto;
+    overflow-x: hidden;
   }
   .site-nav .nav-inner {
-    min-width: max-content;
+    display: block;
   }
   .school-finder-grid,
   .event-layout,
@@ -1585,10 +1700,17 @@ select {
   .page-nav {
     gap: 0.7rem;
     justify-content: initial;
+    flex-wrap: wrap;
+    white-space: normal;
+    margin-top: 0.75rem;
+  }
+  .menu-button {
+    margin-left: auto;
   }
   .nav-search {
-    width: 160px;
-    flex-basis: 160px;
+    order: 10;
+    width: 100%;
+    flex-basis: 100%;
   }
   .page-nav a {
     font-size: 0.75rem;
