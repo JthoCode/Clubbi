@@ -2,11 +2,6 @@
   <div class="container nav-inner">
     <a class="navbar-brand" href="{{ url_for('index') }}">Clubbi</a>
     <div class="page-nav">
-      <a href="{{ url_for('events') }}">Events</a>
-      {% if g.user %}<a href="{{ url_for('all_events') }}">All events</a>{%
-      endif %}
-      <a href="{{ url_for('schools') }}">Find your school</a>
-      <a href="{{ url_for('register_event') }}">List an event</a>
       <form
         class="nav-search"
         method="get"
@@ -51,10 +46,81 @@
       {% else %}
       <a class="nav-login" href="{{ url_for('school_login') }}">School login</a>
       {% endif %}
+      <button
+        class="menu-button"
+        type="button"
+        aria-controls="site-menu"
+        aria-expanded="false"
+        aria-label="Open site menu"
+      >
+        <span class="menu-icon" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span class="visually-hidden">Menu</span>
+      </button>
     </div>
   </div>
 </nav>
+<div class="menu-backdrop" data-menu-close hidden></div>
+<aside
+  class="site-menu"
+  id="site-menu"
+  aria-hidden="true"
+  aria-label="Site menu"
+>
+  <div class="site-menu-header">
+    <strong>Explore Clubbi</strong>
+    <button
+      class="menu-close"
+      type="button"
+      data-menu-close
+      aria-label="Close menu"
+    >
+      &times;
+    </button>
+  </div>
+  <nav class="site-menu-links">
+    <a href="{{ url_for('events') }}">Events</a>
+    {% if g.user %}<a href="{{ url_for('all_events') }}">All events</a>{% endif
+    %}
+    <a href="{{ url_for('schools') }}">Find your school</a>
+    <a href="{{ url_for('register_event') }}">List an event</a>
+    {% if g.teacher %}
+    <a href="{{ url_for('teacher_dashboard') }}">Teacher dashboard</a>
+    <a href="{{ url_for('teacher_clubs') }}">Clubs and roles</a>
+    {% endif %}
+    <a href="{{ url_for('feedback') }}">Feedback</a>
+    <a href="{{ url_for('report_problem') }}">Report a problem</a>
+    <a href="{{ url_for('privacy') }}">Privacy</a>
+    <a href="{{ url_for('terms') }}">Terms</a>
+  </nav>
+</aside>
 <script>
+  const menuButton = document.querySelector(".menu-button");
+  const siteMenu = document.querySelector("#site-menu");
+  const menuBackdrop = document.querySelector(".menu-backdrop");
+  const closeMenu = () => {
+    siteMenu.classList.remove("is-open");
+    siteMenu.setAttribute("aria-hidden", "true");
+    menuButton.setAttribute("aria-expanded", "false");
+    menuButton.setAttribute("aria-label", "Open site menu");
+    menuBackdrop.hidden = true;
+  };
+  menuButton.addEventListener("click", () => {
+    const isOpen = siteMenu.classList.toggle("is-open");
+    siteMenu.setAttribute("aria-hidden", String(!isOpen));
+    menuButton.setAttribute("aria-expanded", String(isOpen));
+    menuButton.setAttribute(
+      "aria-label",
+      isOpen ? "Close site menu" : "Open site menu",
+    );
+    menuBackdrop.hidden = !isOpen;
+  });
+  document
+    .querySelectorAll("[data-menu-close]")
+    .forEach((element) => element.addEventListener("click", closeMenu));
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") closeMenu();
+  });
+
   document.addEventListener("submit", async (event) => {
     const form = event.target.closest(".event-star-form");
     if (!form || form.dataset.busy === "true") return;
