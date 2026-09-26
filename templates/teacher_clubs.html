@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Clubs | Clubbi</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+  </head>
+  <body class="app-page">
+    {% include "_navbar.html" %}
+    <main class="page-main">
+      <div class="container narrow-content">
+        <p class="eyebrow">Teacher tools</p>
+        <h1>Clubs and student roles.</h1>
+        <p class="page-intro">
+          Create clubs and assign roles such as president, vice president, or
+          treasurer.
+        </p>
+        {% with messages = get_flashed_messages(with_categories=true) %}{% for
+        category, message in messages %}
+        <div class="alert alert-{{ category }}" role="alert">{{ message }}</div>
+        {% endfor %}{% endwith %}
+        <form
+          method="post"
+          action="{{ url_for('create_club') }}"
+          class="platform-form"
+        >
+          <input
+            type="hidden"
+            name="csrfmiddlewaretoken"
+            value="{{ csrf_token }}"
+          />
+          <h2>Create a club</h2>
+          <label for="name">Club name</label
+          ><input id="name" name="name" required maxlength="120" /><label
+            for="description"
+            >Description</label
+          ><textarea
+            id="description"
+            name="description"
+            rows="3"
+            required
+            maxlength="2000"
+          ></textarea
+          ><button class="primary-button" type="submit">Create club</button>
+        </form>
+        <div class="event-list">
+          {% for club in clubs %}
+          <article class="event-card">
+            <div class="event-content">
+              <span class="event-category"
+                >{{ club['member_count'] }} roles</span
+              >
+              <h2>{{ club['name'] }}</h2>
+              <p>{{ club['description'] }}</p>
+            </div>
+            <form
+              method="post"
+              action="{{ url_for('assign_club_role', club_id=club['id']) }}"
+              class="platform-form"
+            >
+              <input
+                type="hidden"
+                name="csrfmiddlewaretoken"
+                value="{{ csrf_token }}"
+              /><label for="student-{{ club['id'] }}">Student</label
+              ><select id="student-{{ club['id'] }}" name="user_id" required>
+                <option value="">Choose a student</option>
+                {% for student in students %}
+                <option value="{{ student['id'] }}">
+                  {{ student['name'] }}
+                </option>
+                {% endfor %}</select
+              ><label for="role-{{ club['id'] }}">Role</label
+              ><input
+                id="role-{{ club['id'] }}"
+                name="role_name"
+                placeholder="President"
+                required
+                maxlength="80"
+              /><button class="outline-button" type="submit">Save role</button>
+            </form>
+          </article>
+          {% else %}
+          <div class="empty-state">
+            <h3>No clubs yet.</h3>
+            <p>Create the first club for your school above.</p>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </main>
+  </body>
+</html>

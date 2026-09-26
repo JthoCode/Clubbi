@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>
+      {{ "Create account" if mode == "register" else "Log in" }} | Clubbi
+    </title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+  </head>
+  <body class="app-page">
+    {% include "_navbar.html" %}
+    <main class="auth-card">
+      <a class="brand" href="{{ url_for('index') }}">Clubbi</a>
+      <p class="eyebrow">Student activities hub</p>
+      <h1>
+        {{ "Create your account" if mode == "register" else "Welcome back" }}
+      </h1>
+      <p class="muted">
+        {{ "Join your campus community." if mode == "register" else "Log in to
+        see what is happening on campus." }}
+      </p>
+
+      {% with messages = get_flashed_messages(with_categories=true) %} {% if
+      messages %} {% for category, message in messages %}
+      <div class="alert alert-{{ category }}" role="alert">{{ message }}</div>
+      {% endfor %} {% endif %} {% endwith %} {% if login_error %}
+      <div class="alert alert-danger" role="alert">{{ login_error }}</div>
+      {% endif %}
+
+      <form method="post" class="auth-form">
+        <input
+          type="hidden"
+          name="csrfmiddlewaretoken"
+          value="{{ csrf_token }}"
+        />
+        {% if mode == "register" %}
+        <label for="name">Name</label>
+        <input
+          id="name"
+          name="name"
+          type="text"
+          autocomplete="name"
+          required
+          value="{{ request.form.get('name', '') }}"
+        />
+        {% endif %}
+        <label for="email">Email</label>
+        <input
+          id="email"
+          name="email"
+          type="email"
+          autocomplete="email"
+          required
+          value="{{ request.form.get('email', '') }}"
+        />
+        <label for="password">Password</label>
+        <input
+          id="password"
+          name="password"
+          type="password"
+          autocomplete="{{ 'new-password' if mode == 'register' else 'current-password' }}"
+          required
+          minlength="8"
+        />
+          <label for="school_id">School</label>
+          <select id="school_id" name="school_id" required>
+            <option value="">Choose your school</option>
+            {% for school in schools %}
+            <option value="{{ school['id'] }}" {% if request.form.get('school_id') == school['id']|string %}selected{% endif %}>
+              {{ school['name'] }} &middot; {{ school['city'] }}
+            </option>
+            {% endfor %}
+          </select>
+          <label for="school_phrase">School login phrase</label>
+          <input
+            id="school_phrase"
+            name="school_phrase"
+            type="text"
+            minlength="4"
+            maxlength="80"
+            required
+            autocomplete="organization-title"
+          />
+        <button class="primary-button" type="submit">
+          {{ "Create account" if mode == "register" else "Log in" }}
+        </button>
+      </form>
+
+      <p class="auth-switch">
+        {% if mode == "register" %} Already have an account?
+        <a href="{{ url_for('login') }}">Log in</a> {% else %} New to Clubbi?
+        <a href="{{ url_for('register') }}">Create an account</a>
+        {% endif %}
+      </p>
+      {% if mode == "login" %}
+      <p class="auth-switch">
+        <a href="{{ url_for('teacher_login') }}">I'm a teacher →</a>
+      </p>
+      {% endif %}
+    </main>
+  </body>
+</html>

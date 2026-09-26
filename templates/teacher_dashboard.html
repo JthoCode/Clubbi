@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Teacher dashboard | Clubbi</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+  </head>
+  <body class="app-page">
+    {% include "_navbar.html" %}
+    <main class="page-main">
+      <div class="container narrow-content">
+        <div class="page-header">
+          <div>
+            <p class="eyebrow">{{ g.teacher['school_name'] }}</p>
+            <h1>Teacher dashboard.</h1>
+            <p>Assign student heads, manage attendance, and keep activities moving.</p>
+            <p><a class="text-link" href="{{ url_for('teacher_clubs') }}">Manage clubs and roles</a></p>
+          </div>
+          <span class="event-count">{{ events|length }} events</span>
+        </div>
+        {% with messages = get_flashed_messages(with_categories=true) %}{% for
+        category, message in messages %}
+        <div class="alert alert-{{ category }} page-alert" role="alert">{{ message }}</div>
+        {% endfor %}{% endwith %}
+        {% if events %}
+        <div class="event-list">
+          {% for event in events %}
+          <article class="event-card">
+            <div class="event-date">
+              <strong>{{ event['event_date'][8:10] }}</strong>
+              <span>{{ event['event_date'][5:7] }}/{{ event['event_date'][0:4] }}</span>
+            </div>
+            <div class="event-content">
+              <span class="event-category">{{ event['category'] }}</span>
+              <h3>{{ event['title'] }}</h3>
+              <p>{{ event['location'] }} &middot; {{ event['start_time']|time12 }}</p>
+              {% if event['head_name'] %}<p>Current head: {{ event['head_name'] }}</p>{% else %}<p>No student head assigned.</p>{% endif %}
+            </div>
+            <div class="event-action">
+              <a class="text-link" href="{{ url_for('event_attendees', event_id=event['id']) }}">Attendees</a>
+              <form method="post" action="{{ url_for('assign_event_head', event_id=event['id']) }}" class="platform-form">
+                <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}" />
+                <label class="visually-hidden" for="head-{{ event['id'] }}">Student head</label>
+                <select id="head-{{ event['id'] }}" name="user_id">
+                  <option value="">No head</option>
+                  {% for student in students %}
+                  <option value="{{ student['id'] }}" {% if event['head_id'] == student['id'] %}selected{% endif %}>{{ student['name'] }}</option>
+                  {% endfor %}
+                </select>
+                <button class="outline-button" type="submit">Save head</button>
+              </form>
+            </div>
+          </article>
+          {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+          <h3>No school events yet.</h3>
+          <p>Events created by your school will appear here.</p>
+        </div>
+        {% endif %}
+      </div>
+    </main>
+  </body>
+</html>

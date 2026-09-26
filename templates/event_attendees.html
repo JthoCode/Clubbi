@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Event attendees | Clubbi</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+  </head>
+  <body class="app-page">
+    {% include "_navbar.html" %}
+    <main class="page-main">
+      <div class="container narrow-content">
+        <p class="eyebrow">Attendance roster</p>
+        <h1>{{ event['title'] }}</h1>
+        <p class="page-intro">
+          {{ attendees|length }} signed-up student{{ '' if attendees|length == 1
+          else 's' }}.
+        </p>
+        <div class="school-results">
+          {% for attendee in attendees %}
+          <div class="school-result">
+            <span class="school-mark">{{ attendee['name'][0] }}</span
+            ><span
+              ><strong>{{ attendee['name'] }}</strong
+              ><small>{{ attendee['email'] }}</small></span
+            >
+          </div>
+          {% else %}
+          <div class="empty-state">
+            <h3>No attendees yet.</h3>
+            <p>Students who sign up will appear here.</p>
+          </div>
+          {% endfor %}
+        </div>
+        <p>
+          <a class="text-link" href="{{ url_for('teacher_dashboard') }}"
+            >Back to dashboard</a
+          >
+        </p>
+      </div>
+    </main>
+  </body>
+</html>

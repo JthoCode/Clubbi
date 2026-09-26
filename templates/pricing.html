@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>School plans | Clubbi</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+  </head>
+  <body class="app-page">
+    {% include "_navbar.html" %}
+    <main class="page-main">
+      <div class="container narrow-content">
+        <p class="eyebrow">For schools</p>
+        <h1>Choose a plan to publish events.</h1>
+        <p class="page-intro">
+          Create a verified school account, choose a plan, and unlock event
+          publishing.
+        </p>
+        <div class="pricing-grid purchase-pricing-grid">
+          {% for plan_id, plan in plans.items() %}
+          <article
+            class="pricing-card {% if plan_id == 'medium' %}featured{% endif %}"
+          >
+            <p class="eyebrow">{{ plan_id|capitalize }}</p>
+            <h2>{{ plan['label'] }}</h2>
+            <div class="pricing-price">
+              ${{ '{:,.0f}'.format(plan['amount_cents'] / 100) }}<small
+                >/year</small
+              >
+            </div>
+            <p class="pricing-note">
+              Publish and manage events for your campus.
+            </p>
+            <a
+              class="primary-button pricing-action"
+              href="{{ url_for('school_login', next=url_for('purchase_plan', plan=plan_id)) }}"
+              >School checkout &#8594;</a
+            >
+          </article>
+          {% endfor %}
+        </div>
+      </div>
+    </main>
+  </body>
+</html>

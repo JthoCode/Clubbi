@@ -1,0 +1,83 @@
+<nav class="navbar site-nav">
+  <div class="container nav-inner">
+    <a class="navbar-brand" href="{{ url_for('index') }}">Clubbi</a>
+    <div class="page-nav">
+      <a href="{{ url_for('events') }}">Events</a>
+      {% if g.user %}<a href="{{ url_for('all_events') }}">All events</a>{%
+      endif %}
+      <a href="{{ url_for('schools') }}">Find your school</a>
+      <a href="{{ url_for('register_event') }}">List an event</a>
+      <form
+        class="nav-search"
+        method="get"
+        action="{{ url_for('search') }}"
+        role="search"
+      >
+        <label class="visually-hidden" for="nav-search-input"
+          >Search Clubbi</label
+        >
+        <input
+          id="nav-search-input"
+          name="q"
+          type="search"
+          value="{{ request.args.get('q', '') }}"
+          placeholder="Search Clubbi"
+          maxlength="100"
+        />
+        <button class="nav-search-button" type="submit">Search</button>
+      </form>
+      {% if g.user %}
+      <span class="nav-greeting">Hi, {{ g.user['name'] }}</span>
+      <form method="post" action="{{ url_for('logout') }}">
+        <input
+          type="hidden"
+          name="csrfmiddlewaretoken"
+          value="{{ csrf_token }}"
+        />
+        <button class="nav-logout" type="submit">Log out</button>
+      </form>
+      {% else %}
+      <a class="nav-login" href="{{ url_for('login') }}">Log in</a>
+      {% endif %} {% if g.school %}
+      <span class="nav-greeting">{{ g.school['name'] }}</span>
+      <form method="post" action="{{ url_for('school_logout') }}">
+        <input
+          type="hidden"
+          name="csrfmiddlewaretoken"
+          value="{{ csrf_token }}"
+        />
+        <button class="nav-logout" type="submit">School log out</button>
+      </form>
+      {% else %}
+      <a class="nav-login" href="{{ url_for('school_login') }}">School login</a>
+      {% endif %}
+    </div>
+  </div>
+</nav>
+<script>
+  document.addEventListener("submit", async (event) => {
+    const form = event.target.closest(".event-star-form");
+    if (!form || form.dataset.busy === "true") return;
+    event.preventDefault();
+    form.dataset.busy = "true";
+    const button = form.querySelector(".star-button");
+    try {
+      const response = await fetch(form.action, {
+        method: "POST",
+        body: new FormData(form),
+        headers: { Accept: "application/json" },
+      });
+      if (!response.ok) throw new Error("Unable to update star");
+      const result = await response.json();
+      button.classList.toggle("is-starred", result.starred);
+      button.setAttribute(
+        "aria-label",
+        `${result.starred ? "Unstar" : "Star"} event`,
+      );
+    } catch (error) {
+      form.submit();
+    } finally {
+      form.dataset.busy = "false";
+    }
+  });
+</script>

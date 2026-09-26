@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Add an event | Clubbi</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+  </head>
+  <body class="app-page">
+    {% include "_navbar.html" %}
+    <main class="page-main">
+      <div class="container form-layout">
+        <div class="form-intro">
+          <p class="eyebrow">For schools and organizers</p>
+          <h1>Add something worth showing up for.</h1>
+          <p>
+            Choose your school and publish an event. Your school information is
+            already saved, so you can return here to add another event anytime.
+          </p>
+          <div class="form-promise">
+            <strong>School details stay saved.</strong>
+            <span>Only the event information changes each time you submit.</span>
+          </div>
+        </div>
+        <form method="post" class="platform-form">
+          <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}" />
+          <h2>Event details</h2>
+          <label for="school_id">School</label>
+          <select id="school_id" name="school_id" required>
+            {% for school in schools %}
+            <option
+              value="{{ school['id'] }}"
+              {% if selected_school_id == school['id'] %}selected{% endif %}
+            >
+              {{ school['name'] }} &middot; {{ school['city'] }}
+            </option>
+            {% endfor %}
+          </select>
+          {% if not schools %}
+          <p class="form-help">
+            Register your school first before adding an event.
+            <a class="text-link" href="{{ url_for('register_school_event') }}">Register a school &#8594;</a>
+          </p>
+          {% endif %}
+          <label for="title">Event name</label>
+          <input
+            id="title"
+            name="title"
+            required
+            value="{{ request.form.get('title', '') }}"
+          />
+          <label for="description">Description</label>
+          <textarea id="description" name="description" rows="4" required>{{ request.form.get('description', '') }}</textarea>
+          <div class="form-row">
+            <div>
+              <label for="category">Category</label>
+              <select id="category" name="category" required>
+                <option value="">Choose one</option>
+                {% for category in ['Club', 'Event', 'Sports', 'Arts', 'Workshop', 'Other'] %}
+                <option {% if request.form.get('category') == category %}selected{% endif %}>{{ category }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div>
+              <label for="capacity">Capacity <span class="optional">optional</span></label>
+              <input
+                id="capacity"
+                name="capacity"
+                type="number"
+                min="1"
+                value="{{ request.form.get('capacity', '') }}"
+              />
+            </div>
+          </div>
+          <div class="form-row">
+            <div>
+              <label for="event_date">Date</label>
+              <input
+                id="event_date"
+                name="event_date"
+                type="date"
+                required
+                value="{{ request.form.get('event_date', '') }}"
+              />
+            </div>
+            <div>
+              <label for="start_time">Start time</label>
+              <input
+                id="start_time"
+                name="start_time"
+                type="text"
+                inputmode="text"
+                placeholder="e.g. 3:00 PM"
+                pattern="(0?[1-9]|1[0-2]):[0-5][0-9] ?[AaPp][Mm]|(0?[1-9]|1[0-2]) ?[AaPp][Mm]"
+                required
+                value="{{ request.form.get('start_time', '') }}"
+              />
+            </div>
+          </div>
+          <div class="form-row recurrence-row">
+            <div>
+              <label for="recurrence">Repeats</label>
+              <select id="recurrence" name="recurrence">
+                {% set selected_recurrence = request.form.get('recurrence', 'one_time') %}
+                <option value="one_time" {% if selected_recurrence == 'one_time' %}selected{% endif %}>One time</option>
+                <option value="weekly" {% if selected_recurrence == 'weekly' %}selected{% endif %}>Weekly</option>
+                <option value="biweekly" {% if selected_recurrence == 'biweekly' %}selected{% endif %}>Biweekly</option>
+                <option value="monthly" {% if selected_recurrence == 'monthly' %}selected{% endif %}>Monthly</option>
+                <option value="yearly" {% if selected_recurrence == 'yearly' %}selected{% endif %}>Yearly</option>
+              </select>
+            </div>
+          </div>
+          <div id="recurrence-end-field" class="recurrence-end-row">
+            <label for="recurrence_end">Repeat until</label>
+            <input
+              id="recurrence_end"
+              name="recurrence_end"
+              type="date"
+              value="{{ request.form.get('recurrence_end', '') }}"
+            />
+          </div>
+          <p class="form-help recurrence-help">Repeating events are added as individual events, so students can sign up for each meeting.</p>
+          <label for="location">Location</label>
+          <input
+            id="location"
+            name="location"
+            required
+            value="{{ request.form.get('location', '') }}"
+          />
+          <button class="primary-button form-submit" type="submit">
+            Add event to Clubbi <span aria-hidden="true">&#8594;</span>
+          </button>
+          {% with messages = get_flashed_messages(with_categories=true) %}
+          {% for category, message in messages %}
+          <div class="alert alert-{{ category }}" role="alert">
+            {{ message }}
+          </div>
+          {% endfor %}
+          {% endwith %}
+        </form>
+      </div>
+    </main>
+    <script>
+      const recurrence = document.querySelector("#recurrence");
+      const recurrenceEnd = document.querySelector("#recurrence_end");
+      const recurrenceEndField = document.querySelector("#recurrence-end-field");
+      const updateRecurrenceFields = () => {
+        const repeating = recurrence.value !== "one_time";
+        recurrenceEnd.required = repeating;
+        recurrenceEndField.hidden = !repeating;
+      };
+      recurrence.addEventListener("change", updateRecurrenceFields);
+      updateRecurrenceFields();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Register your school | Clubbi</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+  </head>
+  <body class="app-page">
+    {% include "_navbar.html" %}
+    <main class="page-main">
+      <div class="container form-layout">
+        <div class="form-intro">
+          <p class="eyebrow">For schools and organizers</p>
+          <h1>Put your school on the map.</h1>
+          <p>
+            Register your school, verify its contact email, choose a plan, then
+            add as many clubs, programs, and events as your students need.
+          </p>
+          <div class="form-promise">
+            <strong>One school profile.</strong>
+            <span>Your school account controls event publishing.</span>
+          </div>
+          <p class="form-help">
+            Choose a short login phrase for your school. Share it only with your
+            school community.
+          </p>
+        </div>
+        <form method="post" class="platform-form">
+          <input
+            type="hidden"
+            name="csrfmiddlewaretoken"
+            value="{{ csrf_token }}"
+          />
+          <h2>School details</h2>
+          <label for="school_name">School name</label>
+          <input
+            id="school_name"
+            name="school_name"
+            required
+            value="{{ request.form.get('school_name', '') }}"
+          />
+          <label for="city">City</label>
+          <input
+            id="city"
+            name="city"
+            required
+            value="{{ request.form.get('city', '') }}"
+          />
+          <label for="contact_email">School contact email</label>
+          <input
+            id="contact_email"
+            name="contact_email"
+            type="email"
+            required
+            value="{{ request.form.get('contact_email', '') }}"
+          />
+          <label for="password">School password</label>
+          <input
+            id="password"
+            name="password"
+            type="password"
+            minlength="8"
+            maxlength="128"
+            required
+            autocomplete="new-password"
+          />
+          <label for="password_confirmation">Confirm password</label>
+          <input
+            id="password_confirmation"
+            name="password_confirmation"
+            type="password"
+            minlength="8"
+            maxlength="128"
+            required
+            autocomplete="new-password"
+          />
+          <label for="school_phrase">School login phrase</label>
+          <input
+            id="school_phrase"
+            name="school_phrase"
+            required
+            minlength="4"
+            maxlength="80"
+            value="{{ request.form.get('school_phrase', '') }}"
+            placeholder="e.g. facts / renweb"
+          />
+          <p class="form-help">
+            Use 4–80 characters. Every school needs a different phrase.
+          </p>
+          <button class="primary-button form-submit" type="submit">
+            Continue to add an event <span aria-hidden="true">&#8594;</span>
+          </button>
+          {% with messages = get_flashed_messages(with_categories=true) %} {%
+          for category, message in messages %}
+          <div class="alert alert-{{ category }}" role="alert">
+            {{ message }}
+          </div>
+          {% endfor %} {% endwith %}
+        </form>
+      </div>
+    </main>
+  </body>
+</html>

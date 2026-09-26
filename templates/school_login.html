@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>School login | Clubbi</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+  </head>
+  <body class="app-page">
+    {% include "_navbar.html" %}
+    <main class="auth-card">
+      <a class="brand" href="{{ url_for('index') }}">Clubbi</a>
+      <p class="eyebrow">For schools and organizers</p>
+      <h1>School login</h1>
+      <p class="muted">Log in to manage your school events and plan.</p>
+      {% with messages = get_flashed_messages(with_categories=true) %}{% for
+      category, message in messages %}
+      <div class="alert alert-{{ category }}" role="alert">{{ message }}</div>
+      {% endfor %}{% endwith %} {% if login_error %}
+      <div class="alert alert-danger" role="alert">{{ login_error }}</div>
+      {% endif %}
+      <form method="post" class="auth-form">
+        <input
+          type="hidden"
+          name="csrfmiddlewaretoken"
+          value="{{ csrf_token }}"
+        />
+        <label for="email">School contact email</label
+        ><input
+          id="email"
+          name="email"
+          type="email"
+          required
+          autocomplete="email"
+        />
+        <label for="password">Password</label
+        ><input
+          id="password"
+          name="password"
+          type="password"
+          required
+          autocomplete="current-password"
+        />
+        <label for="school_phrase">School login phrase</label
+        ><input
+          id="school_phrase"
+          name="school_phrase"
+          type="text"
+          minlength="4"
+          maxlength="80"
+          required
+          autocomplete="organization-title"
+        />
+        <button class="primary-button" type="submit">Log in</button>
+      </form>
+      <p class="auth-switch">
+        New school?
+        <a href="{{ url_for('register_school_event') }}"
+          >Create a school account</a
+        >
+      </p>
+      <p class="auth-switch">
+        <a href="{{ url_for('school_password_reset_request') }}"
+          >Forgot your school password or login phrase?</a
+        >
+      </p>
+    </main>
+  </body>
+</html>

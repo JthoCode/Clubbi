@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin | Clubbi</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+  </head>
+  <body class="app-page">
+    {% include "_navbar.html" %}
+    <main class="page-main">
+      <div class="container">
+        <p class="eyebrow">Internal tools</p>
+        <h1>Clubbi admin.</h1>
+        <section class="dashboard-section">
+          <h2>Schools</h2>
+          <div class="school-results">
+            {% for school in schools %}
+            <div class="school-result">
+              <span
+                ><strong>{{ school['name'] }}</strong
+                ><small
+                  >{{ school['city'] }} · {{ school['contact_email'] }}</small
+                ></span
+              >
+              <form
+                method="post"
+                action="{{ url_for('admin_delete_school', school_id=school['id']) }}"
+              >
+                <input
+                  type="hidden"
+                  name="csrfmiddlewaretoken"
+                  value="{{ csrf_token }}"
+                /><button class="outline-button" type="submit">Remove</button>
+              </form>
+            </div>
+            {% endfor %}
+          </div>
+        </section>
+        <section class="dashboard-section">
+          <h2>Events</h2>
+          <div class="school-results">
+            {% for event in events %}
+            <div class="school-result">
+              <span
+                ><strong>{{ event['title'] }}</strong
+                ><small
+                  >{{ event['school_name'] }} · {{ event['event_date'] }}</small
+                ></span
+              >
+              <form
+                method="post"
+                action="{{ url_for('admin_delete_event', event_id=event['id']) }}"
+              >
+                <input
+                  type="hidden"
+                  name="csrfmiddlewaretoken"
+                  value="{{ csrf_token }}"
+                /><button class="outline-button" type="submit">Remove</button>
+              </form>
+            </div>
+            {% endfor %}
+          </div>
+        </section>
+        <section class="dashboard-section">
+          <h2>Feedback</h2>
+          <div class="school-results">
+            {% for item in feedback %}
+            <div class="school-result">
+              <span
+                ><strong>{{ item['kind'] }}</strong
+                ><small
+                  >{{ item['created_at'] }} · {{ item['message'] }}</small
+                ></span
+              >
+            </div>
+            {% else %}
+            <p>No feedback yet.</p>
+            {% endfor %}
+          </div>
+        </section>
+      </div>
+    </main>
+  </body>
+</html>

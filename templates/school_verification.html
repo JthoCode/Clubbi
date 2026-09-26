@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Verify school email | Clubbi</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+  </head>
+  <body class="app-page">
+    {% include "_navbar.html" %}
+    <main class="auth-card">
+      <a class="brand" href="{{ url_for('index') }}">Clubbi</a>
+      <p class="eyebrow">One more step</p>
+      <h1>Verify your school email.</h1>
+      <p class="muted">
+        Use the verification link sent to your school contact email. In
+        development, the link appears in the confirmation message above.
+      </p>
+      {% with messages = get_flashed_messages(with_categories=true) %}{% for
+      category, message in messages %}
+      <div class="alert alert-{{ category }}" role="alert">{{ message }}</div>
+      {% endfor %}{% endwith %}
+      <a class="text-link" href="{{ url_for('school_login') }}"
+        >Return to school login &#8594;</a
+      >
+    </main>
+  </body>
+</html>

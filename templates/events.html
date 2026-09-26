@@ -1,0 +1,297 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Events | Clubbi</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+  </head>
+  <body class="app-page">
+    {% include "_navbar.html" %}
+    <main class="page-main">
+      <div class="container">
+        <div class="page-header">
+          <div>
+            <p class="eyebrow">Campus calendar</p>
+            <h1>Events worth showing up for.</h1>
+            <p>
+              Browse what schools are hosting and sign up for the experiences
+              that interest you.
+            </p>
+          </div>
+          <a class="primary-button" href="{{ url_for('register_event') }}"
+            >List an event <span aria-hidden="true">&#8594;</span></a
+          >
+        </div>
+        {% with messages = get_flashed_messages(with_categories=true) %} {% for
+        category, message in messages %}
+        <div class="alert alert-{{ category }} page-alert" role="alert">
+          {{ message }}
+        </div>
+        {% endfor %} {% endwith %}
+        <div class="event-layout">
+          <section class="calendar-panel">
+            <div class="calendar-heading">
+              <a
+                class="calendar-nav"
+                href="{{ url_for('events', month=previous_month, school_id=selected_school_id) }}"
+                data-month="{{ previous_month }}"
+                aria-label="Previous month"
+                >&#8592;</a
+              >
+              <h2 id="calendar-month-label">{{ month_label }}</h2>
+              <a
+                class="calendar-nav"
+                href="{{ url_for('events', month=next_month, school_id=selected_school_id) }}"
+                data-month="{{ next_month }}"
+                aria-label="Next month"
+                >&#8594;</a
+              >
+            </div>
+            <div class="calendar-weekdays">
+              <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span
+              ><span>Thu</span><span>Fri</span><span>Sat</span>
+            </div>
+            <div class="calendar-grid" id="calendar-grid">
+              {% for calendar_day in calendar_days %}
+              <div
+                class="calendar-day {% if calendar_day in event_days %}has-events{% endif %}{% if calendar_day == none %} empty{% endif %}"
+                {%
+                if
+                calendar_day
+                %}tabindex="0"
+                {%
+                endif
+                %}
+              >
+                {% if calendar_day %}
+                <span>{{ calendar_day[8:10]|int }}</span>
+                {% if calendar_day in event_days %}
+                <div class="calendar-markers" aria-hidden="true">
+                  {% for event in events if event['event_date'] == calendar_day
+                  %}
+                  <i class="calendar-marker marker-{{ loop.index0 % 4 }}"></i>
+                  {% endfor %}
+                </div>
+                <div class="calendar-tooltip" role="tooltip">
+                  {% for event in events if event['event_date'] == calendar_day
+                  %}
+                  <strong>{{ event['title'] }}</strong>
+                  <span
+                    >{{ event['start_time']|time12 }} &middot; {{
+                    event['category'] }}</span
+                  >
+                  {% endfor %}
+                </div>
+                {% endif %} {% endif %}
+              </div>
+              {% endfor %}
+            </div>
+          </section>
+          <section class="events-panel">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">{{ month_label }}</p>
+                <h2>All events</h2>
+              </div>
+              <span id="event-count">{{ events|length }} listed</span>
+            </div>
+            <div id="event-results">
+              {% if events %}
+              <div class="event-list">
+                {% for event in events %}
+                <article class="event-card">
+                  <div class="event-date">
+                    <strong>{{ event['event_date'][8:10] }}</strong
+                    ><span
+                      >{{ event['event_date'][5:7] }}/{{
+                      event['event_date'][0:4] }}</span
+                    >
+                  </div>
+                  <div class="event-content">
+                    <span class="event-category">{{ event['category'] }}</span>
+                    <h3>{{ event['title'] }}</h3>
+                    <p>
+                      {{ event['school_name'] }} &middot; {{ event['location']
+                      }}
+                    </p>
+                    <p>
+                      {{ event['start_time']|time12 }}{% if event['capacity'] %}
+                      &middot; {{ event['capacity'] - event['signup_count'] if
+                      event['capacity'] > event['signup_count'] else 0 }} spots
+                      left{% endif %}
+                    </p>
+                    <details>
+                      <summary>View details</summary>
+                      <p>{{ event['description'] }}</p>
+                    </details>
+                  </div>
+                  <div class="event-action">
+                    {% if g.user %}
+                    <form
+                      method="post"
+                      action="{{ url_for('toggle_event_star', event_id=event['id']) }}"
+                      class="event-star-form"
+                    >
+                      <input
+                        type="hidden"
+                        name="csrfmiddlewaretoken"
+                        value="{{ csrf_token }}"
+                      />
+                      <input
+                        type="hidden"
+                        name="return_to"
+                        value="{{ request.full_path }}"
+                      />
+                      <button
+                        class="star-button {% if event['id'] in starred_ids %}is-starred{% endif %}"
+                        type="submit"
+                        aria-label="{{ 'Unstar' if event['id'] in starred_ids else 'Star' }} {{ event['title'] }}"
+                      >
+                        &#9733;
+                      </button>
+                    </form>
+                    {% endif %} {% if event['id'] in signed_up_ids %}
+                    <form
+                      method="post"
+                      action="{{ url_for('cancel_event_signup', event_id=event['id']) }}"
+                    >
+                      <input
+                        type="hidden"
+                        name="csrfmiddlewaretoken"
+                        value="{{ csrf_token }}"
+                      />
+                      <button class="outline-button" type="submit">
+                        Cancel
+                      </button>
+                    </form>
+                    {% else %}
+                    <form
+                      method="post"
+                      action="{{ url_for('signup_for_event', event_id=event['id']) }}"
+                    >
+                      <input
+                        type="hidden"
+                        name="csrfmiddlewaretoken"
+                        value="{{ csrf_token }}"
+                      />
+                      <button class="outline-button" type="submit">
+                        Sign up
+                      </button>
+                    </form>
+                    {% endif %}
+                  </div>
+                </article>
+                {% endfor %}
+              </div>
+              {% else %}
+              <div class="empty-state">
+                <h3>No events listed yet.</h3>
+                <p>
+                  Schools can add their first event to start building a campus
+                  calendar.
+                </p>
+                <a class="text-link" href="{{ url_for('register_event') }}"
+                  >List a school event &#8594;</a
+                >
+              </div>
+              {% endif %}
+            </div>
+          </section>
+        </div>
+      </div>
+    </main>
+    <script>
+      const calendarGrid = document.querySelector("#calendar-grid");
+      const calendarLabel = document.querySelector("#calendar-month-label");
+      const eventResults = document.querySelector("#event-results");
+      const eventCount = document.querySelector("#event-count");
+      const calendarNavLinks = document.querySelectorAll(".calendar-nav");
+      const schoolId = {{ selected_school_id|tojson }};
+      const csrfToken = {{ csrf_token|tojson|safe }};
+
+      const escapeHtml = (value) => String(value ?? "").replace(/[&<>'"]/g, (character) => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;"
+      })[character]);
+
+      const markerClass = (category) => {
+        const categoryName = String(category).toLowerCase();
+        if (categoryName.includes("sports")) return "marker-1";
+        if (categoryName.includes("arts")) return "marker-2";
+        if (categoryName.includes("workshop")) return "marker-3";
+        return "marker-0";
+      };
+
+      const eventTooltip = (event) => `
+        <strong>${escapeHtml(event.title)}</strong>
+        <span>${escapeHtml(event.start_time)} &middot; ${escapeHtml(event.category)}</span>
+        <span>${escapeHtml(event.school_name)} &middot; ${escapeHtml(event.location)}</span>`;
+
+      const eventCard = (event) => {
+        const spots = event.capacity ? `${Math.max(event.capacity - event.signup_count, 0)} spots left` : "";
+        const starButton = `<form method="post" action="/events/${event.id}/star" class="event-star-form"><input type="hidden" name="csrfmiddlewaretoken" value="${escapeHtml(csrfToken)}" /><input type="hidden" name="return_to" value="${escapeHtml(window.location.pathname + window.location.search)}" /><button class="star-button ${event.starred ? "is-starred" : ""}" type="submit" aria-label="${event.starred ? "Unstar" : "Star"} ${escapeHtml(event.title)}">&#9733;</button></form>`;
+        const action = event.signed_up
+          ? `<form method="post" action="/events/${event.id}/cancel"><input type="hidden" name="csrfmiddlewaretoken" value="${escapeHtml(csrfToken)}" /><button class="outline-button" type="submit">Cancel</button></form>`
+          : `<form method="post" action="/events/${event.id}/signup">
+              <input type="hidden" name="csrfmiddlewaretoken" value="${escapeHtml(csrfToken)}" />
+              <button class="outline-button" type="submit">Sign up</button>
+            </form>`;
+        return `<article class="event-card">
+          <div class="event-date"><strong>${escapeHtml(event.event_date.slice(8, 10))}</strong><span>${escapeHtml(event.event_date.slice(5, 7))}/${escapeHtml(event.event_date.slice(0, 4))}</span></div>
+          <div class="event-content"><span class="event-category">${escapeHtml(event.category)}</span><h3>${escapeHtml(event.title)}</h3>
+          <p>${escapeHtml(event.school_name)} &middot; ${escapeHtml(event.location)}</p><p>${escapeHtml(event.start_time)}${spots ? ` &middot; ${spots}` : ""}</p>
+          <details><summary>View details</summary><p>${escapeHtml(event.description)}</p></details></div>
+          <div class="event-action">${starButton}${action}</div></article>`;
+      };
+
+      const renderMonth = (data) => {
+        const firstDay = new Date(`${data.month}-01T00:00:00`).getDay();
+        const daysInMonth = new Date(Number(data.month.slice(0, 4)), Number(data.month.slice(5, 7)), 0).getDate();
+        const eventsByDay = data.events.reduce((grouped, event) => {
+          (grouped[event.event_date] ||= []).push(event);
+          return grouped;
+        }, {});
+        const cells = [];
+        for (let index = 0; index < firstDay; index += 1) cells.push('<div class="calendar-day empty"></div>');
+        for (let day = 1; day <= daysInMonth; day += 1) {
+          const dateKey = `${data.month}-${String(day).padStart(2, "0")}`;
+          const dayEvents = eventsByDay[dateKey] || [];
+          const markers = dayEvents.map((event) => `<i class="calendar-marker ${markerClass(event.category)}"></i>`).join("");
+          const tooltip = dayEvents.map(eventTooltip).join("");
+          cells.push(`<div class="calendar-day ${dayEvents.length ? "has-events" : ""}" tabindex="0"><span>${day}</span>${dayEvents.length ? `<div class="calendar-markers" aria-hidden="true">${markers}</div><div class="calendar-tooltip" role="tooltip">${tooltip}</div>` : ""}</div>`);
+        }
+        calendarGrid.innerHTML = cells.join("");
+        calendarLabel.textContent = data.month_label;
+        eventCount.textContent = `${data.events.length} listed`;
+        eventResults.innerHTML = data.events.length
+          ? `<div class="event-list">${data.events.map(eventCard).join("")}</div>`
+          : '<div class="empty-state"><h3>No events listed yet.</h3><p>Schools can add their first event to start building a campus calendar.</p><a class="text-link" href="/events/register">List a school event &#8594;</a></div>';
+        calendarNavLinks[0].dataset.month = data.previous_month;
+        calendarNavLinks[0].href = `/events?month=${data.previous_month}${schoolId ? `&school_id=${schoolId}` : ""}`;
+        calendarNavLinks[1].dataset.month = data.next_month;
+        calendarNavLinks[1].href = `/events?month=${data.next_month}${schoolId ? `&school_id=${schoolId}` : ""}`;
+      };
+
+      calendarNavLinks.forEach((link) => link.addEventListener("click", async (event) => {
+        event.preventDefault();
+        link.setAttribute("aria-busy", "true");
+        const query = new URLSearchParams({ month: link.dataset.month, format: "json" });
+        if (schoolId) query.set("school_id", schoolId);
+        try {
+          const response = await fetch(`/events?${query}`);
+          if (!response.ok) throw new Error("Calendar request failed");
+          const data = await response.json();
+          renderMonth(data);
+          window.history.replaceState({}, "", `/events?month=${data.month}${schoolId ? `&school_id=${schoolId}` : ""}`);
+        } catch (error) {
+          window.location.href = link.href;
+        } finally {
+          link.removeAttribute("aria-busy");
+        }
+      }));
+    </script>
+  </body>
+</html>

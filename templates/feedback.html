@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Send feedback | Clubbi</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+  </head>
+  <body class="app-page">
+    {% include "_navbar.html" %}
+    <main class="page-main">
+      <div class="container narrow-content">
+        <p class="eyebrow">
+          {{ 'Report a problem' if kind == 'problem' else 'Beta feedback' }}
+        </p>
+        <h1>
+          {{ 'Tell us what went wrong.' if kind == 'problem' else 'Help shape
+          Clubbi.' }}
+        </h1>
+        <p class="page-intro">
+          Include enough detail for us to reproduce what happened.
+        </p>
+        {% with messages = get_flashed_messages(with_categories=true) %}{% for
+        category, message in messages %}
+        <div class="alert alert-{{ category }}" role="alert">{{ message }}</div>
+        {% endfor %}{% endwith %}
+        <form method="post" class="platform-form">
+          <input
+            type="hidden"
+            name="csrfmiddlewaretoken"
+            value="{{ csrf_token }}"
+          /><label for="message">Message</label
+          ><textarea
+            id="message"
+            name="message"
+            rows="7"
+            maxlength="4000"
+            required
+          ></textarea
+          ><input
+            type="hidden"
+            name="page_url"
+            value="{{ request.get_full_path() }}"
+          /><button class="primary-button" type="submit">Send message</button>
+        </form>
+      </div>
+    </main>
+  </body>
+</html>

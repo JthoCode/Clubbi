@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Choose a plan | Clubbi</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+  </head>
+  <body class="app-page">
+    {% include "_navbar.html" %}
+    <main class="page-main">
+      <div class="container narrow-content purchase-page">
+        <p class="eyebrow">School plans</p>
+        <h1>Choose a plan for {{ g.school['name'] }}.</h1>
+        <p class="page-intro">
+          This local checkout activates event publishing. No card details are
+          stored by Clubbi.
+        </p>
+        <div class="pricing-grid">
+          {% for plan_id, plan in plans.items() %}
+          <form
+            method="post"
+            class="pricing-card {% if selected_plan == plan_id %}featured{% endif %}"
+          >
+            <input
+              type="hidden"
+              name="csrfmiddlewaretoken"
+              value="{{ csrf_token }}"
+            />
+            <input type="hidden" name="plan" value="{{ plan_id }}" />
+            <p class="eyebrow">{{ plan_id|capitalize }}</p>
+            <h2>{{ plan['label'] }}</h2>
+            <div class="pricing-price">
+              ${{ '{:,.0f}'.format(plan['amount_cents'] / 100) }}<small
+                >/year</small
+              >
+            </div>
+            <p class="pricing-note">
+              Publish events for your campus with this plan.
+            </p>
+            <button class="primary-button form-submit" type="submit">
+              Purchase plan
+            </button>
+          </form>
+          {% endfor %}
+        </div>
+      </div>
+    </main>
+  </body>
+</html>

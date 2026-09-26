@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Terms | Clubbi</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+  </head>
+  <body class="app-page">
+    {% include "_navbar.html" %}
+    <main class="page-main">
+      <div class="container narrow-content">
+        <p class="eyebrow">Clubbi</p>
+        <h1>Terms of use.</h1>
+        <p class="page-intro">
+          Clubbi helps schools and students discover and coordinate activities.
+          Schools are responsible for the accuracy and safety of the events they
+          publish.
+        </p>
+        <h2>Use responsibly</h2>
+        <p>
+          Do not misuse accounts, impersonate others, publish harmful content,
+          or access information that does not belong to you. We may remove
+          content or accounts that violate these expectations.
+        </p>
+        <h2>Beta notice</h2>
+        <p>
+          Clubbi is currently a beta product. Features may change, and schools
+          should maintain their own records for important attendance or safety
+          information.
+        </p>
+      </div>
+    </main>
+  </body>
+</html>

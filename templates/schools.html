@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Find your school | Clubbi</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+  </head>
+  <body class="app-page">
+    {% include "_navbar.html" %}
+    <main class="page-main">
+      <div class="container narrow-content">
+        <p class="eyebrow">Your campus, in one place</p>
+        <h1>Find your school.</h1>
+        <p class="page-intro">
+          Search by school name or city to find the campus community you want to
+          explore.
+        </p>
+        <form
+          class="large-search"
+          method="get"
+          action="{{ url_for('schools') }}"
+        >
+          <input
+            name="q"
+            type="search"
+            value="{{ query }}"
+            placeholder="Search schools or cities"
+            autofocus
+          /><button class="primary-button" type="submit">
+            Search <span aria-hidden="true">&#8594;</span>
+          </button>
+        </form>
+        {% if query %}
+        <p class="result-label">Results for “{{ query }}”</p>
+        {% endif %}
+        <div class="school-results">
+          {% for school in schools %}<a
+            class="school-result"
+            href="{{ url_for('events', school_id=school['id']) }}"
+            ><span class="school-mark">{{ school['name'][0] }}</span
+            ><span
+              ><strong>{{ school['name'] }}</strong
+              ><small>{{ school['city'] }} &middot; View events</small></span
+            ><span class="card-arrow">&#8594;</span></a
+          >{% else %}
+          <div class="empty-state">
+            <h3>
+              {% if query %}No schools found.{% else %}No schools have joined
+              yet.{% endif %}
+            </h3>
+            <p>Is your school new to Clubbi?</p>
+            <a class="text-link" href="{{ url_for('register_school_event') }}"
+              >List your school's first event &#8594;</a
+            >
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </main>
+  </body>
+</html>

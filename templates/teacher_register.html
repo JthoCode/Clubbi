@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Create teacher account | Clubbi</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+  </head>
+  <body class="app-page">
+    {% include "_navbar.html" %}
+    <main class="page-main">
+      <div class="container form-layout">
+        <div class="form-intro">
+          <p class="eyebrow">For teachers and activity leaders</p>
+          <h1>Keep student activities on track.</h1>
+          <p>Create a teacher account for your school and assign a student head to each event.</p>
+        </div>
+        <form method="post" class="platform-form">
+          <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}" />
+          <h2>Teacher details</h2>
+          <label for="name">Name</label>
+          <input id="name" name="name" required value="{{ request.form.get('name', '') }}" />
+          <label for="email">Teacher email</label>
+          <input id="email" name="email" type="email" required value="{{ request.form.get('email', '') }}" />
+          <label for="school_id">School</label>
+          <select id="school_id" name="school_id" required>
+            <option value="">Choose your school</option>
+            {% for school in schools %}
+            <option value="{{ school['id'] }}" {% if request.form.get('school_id') == school['id']|string %}selected{% endif %}>
+              {{ school['name'] }} &middot; {{ school['city'] }}
+            </option>
+            {% endfor %}
+          </select>
+          {% if not schools %}
+          <p class="form-help">Register your school before creating a teacher account.</p>
+          {% endif %}
+          <label for="school_phrase">School login phrase</label>
+          <input
+            id="school_phrase"
+            name="school_phrase"
+            type="text"
+            minlength="4"
+            maxlength="80"
+            required
+            autocomplete="organization-title"
+          />
+          <label for="password">Password</label>
+          <input id="password" name="password" type="password" minlength="8" maxlength="128" required autocomplete="new-password" />
+          <label for="password_confirmation">Confirm password</label>
+          <input id="password_confirmation" name="password_confirmation" type="password" minlength="8" maxlength="128" required autocomplete="new-password" />
+          <button class="primary-button form-submit" type="submit">Create teacher account</button>
+          {% if registration_error %}
+          <div class="alert alert-danger" role="alert">{{ registration_error }}</div>
+          {% endif %}
+        </form>
+      </div>
+    </main>
+  </body>
+</html>
